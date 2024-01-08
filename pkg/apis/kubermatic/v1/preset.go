@@ -222,6 +222,8 @@ type VSphere struct {
 	// the BasePath part will be appended to the RootPath to construct the full path. For both cases,
 	// the full folder structure needs to exist. KKP will only try to create the cluster folder.
 	BasePath string `json:"basePath,omitempty"`
+	// Folder to be used to group the provisioned virtual machines.
+	Folder string `json:"folder,omitempty"`
 }
 
 func (s VSphere) IsValid() bool {

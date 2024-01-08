@@ -469,6 +469,9 @@ spec:
                     enabled:
                       description: Only enabled presets will be available in the KKP dashboard.
                       type: boolean
+                    folder:
+                      description: Folder to be used to group the provisioned virtual machines.
+                      type: string
                     networks:
                       description: List of vSphere networks.
                       items:
