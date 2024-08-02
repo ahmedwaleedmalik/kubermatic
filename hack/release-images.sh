@@ -57,6 +57,8 @@ if [ "$KUBERMATIC_EDITION" != "ce" ]; then
   REPOSUFFIX="-$KUBERMATIC_EDITION"
 fi
 
+start_docker_daemon_ci
+
 # build Docker images
 PRIMARY_TAG="v2.25-development-inventx-165315"
 make docker-build TAGS="$PRIMARY_TAG"
