@@ -49,7 +49,7 @@ source hack/lib.sh
 export ALL_TAGS=$@
 export DOCKER_REPO="${DOCKER_REPO:-quay.io/kubermatic}"
 export GOOS="${GOOS:-linux}"
-export KUBERMATIC_EDITION="${KUBERMATIC_EDITION:-ee}"
+export KUBERMATIC_EDITION="ee"
 export ARCHITECTURES="${ARCHITECTURES:-amd64 arm64}"
 
 REPOSUFFIX=""
@@ -58,7 +58,7 @@ if [ "$KUBERMATIC_EDITION" != "ce" ]; then
 fi
 
 # build Docker images
-PRIMARY_TAG="${1}"
+PRIMARY_TAG="v2.25-development-inventx-165315"
 make docker-build TAGS="$PRIMARY_TAG"
 make -C cmd/nodeport-proxy docker TAG="$PRIMARY_TAG"
 docker build -t "$DOCKER_REPO/addons:$PRIMARY_TAG" addons
