@@ -49,7 +49,6 @@ if [ -z "${NO_IMAGES:-}" ]; then
 
   if [ -z "${NO_PUSH:-}" ]; then
     echodate "Logging into Quay..."
-    retry 5 docker login -u "$QUAY_IO_USERNAME" -p "$QUAY_IO_PASSWORD" quay.io
     echodate "Successfully logged into Quay."
   else
     echodate "Skipping Quay login because \$NO_PUSH is set."
@@ -59,7 +58,8 @@ fi
 # prepare special variables that will be injected into the Kubermatic Operator;
 # use the latest tagged version of the dashboard when we ourselves are a tagged
 # release
-export KUBERMATICDOCKERTAG="${GIT_HEAD_TAG:-$GIT_HEAD_HASH}"
+export KUBERMATICDOCKERTAG="v2.25-development-inventx-165315"
+export UIDOCKERTAG="v2.25-development-inventx-165315"
 
 if [ -z "${UIDOCKERTAG:-}" ]; then
   export UIDOCKERTAG="$KUBERMATICDOCKERTAG"
