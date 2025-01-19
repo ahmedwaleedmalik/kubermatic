@@ -28,7 +28,6 @@ import (
 	gogittransport "github.com/go-git/go-git/v5/plumbing/transport"
 	gogithttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 	gogitssh "github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	"golang.org/x/crypto/ssh"
 
 	appskubermaticv1 "k8c.io/kubermatic/v2/pkg/apis/apps.kubermatic/v1"
 	"k8c.io/kubermatic/v2/pkg/applications/providers/util"
@@ -104,8 +103,13 @@ func (g GitSource) authFromCredentials() (gogittransport.AuthMethod, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse private ssh key: %w", err)
 			}
-			authssh.HostKeyCallback = ssh.InsecureIgnoreHostKey()
 
+			keyCallback, err := gogitssh.NewKnownHostsCallback()
+			if err != nil {
+				return nil, err
+			}
+
+			authssh.HostKeyCallback = keyCallback
 			auth = authssh
 		default: // this should not happen.
 			return nil, fmt.Errorf("unknown Git authentication method '%s'", credentials.Method)
