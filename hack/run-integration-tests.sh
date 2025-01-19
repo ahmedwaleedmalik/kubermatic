@@ -39,56 +39,6 @@ if [[ ! -z "${JOB_NAME:-}" ]] && [[ ! -z "${PROW_JOB_ID:-}" ]]; then
   start_docker_daemon_ci
 fi
 
-# For the AWS tests, we need a localstack container running.
-if [ -z "${SKIP_AWS_PROVIDER:-}" ]; then
-  echodate "Setting up localstack container, set \$SKIP_AWS_PROVIDER to skip..."
-
-  containerName=kkp-localstack
-
-  docker run \
-    --name "$containerName" \
-    --rm \
-    --detach \
-    --publish 4566:4566 \
-    --publish 4571:4571 \
-    --env "SERVICES=iam,ec2" \
-    "$LOCALSTACK_IMAGE"
-
-  function stop_localstack() {
-    echodate "Stopping localstack container..."
-    docker stop "$containerName"
-  }
-  trap stop_localstack EXIT SIGINT SIGTERM
-
-  export AWS_ACCESS_KEY_ID=test
-  export AWS_SECRET_ACCESS_KEY=test
-  export AWS_REGION=eu-north-1
-
-  # the existence of this env var enables the AWS provider's integration tests
-  export AWS_TEST_ENDPOINT=http://localhost:4566
-fi
-
-# For the kubectl tests, we must build the final KKP docker image.
-if [ -z "${SKIP_KUBECTL_TESTS:-}" ]; then
-  echodate "Building dummy KKP image, set \$SKIP_KUBECTL_TESTS to skip..."
-
-  # we do not need actual KKP binaries in the image
-  mkdir _build
-  touch \
-    _build/kubermatic-operator \
-    _build/kubermatic-installer \
-    _build/kubermatic-webhook \
-    _build/master-controller-manager \
-    _build/seed-controller-manager \
-    _build/user-cluster-controller-manager \
-    _build/user-cluster-webhook
-
-  # the existence of this env var enables the integration tests
-  export KUBECTL_TEST_IMAGE=kkpkubectltest
-
-  docker build -t $KUBECTL_TEST_IMAGE .
-fi
-
 echodate "Running integration tests..."
 
 # Run integration tests and only integration tests by:

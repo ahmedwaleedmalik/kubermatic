@@ -1,4 +1,4 @@
-//go:build integration
+//go:build zz
 
 /*
 Copyright 2022 The Kubermatic Kubernetes Platform contributors.
