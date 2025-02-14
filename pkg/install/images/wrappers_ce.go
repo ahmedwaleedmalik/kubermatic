@@ -22,6 +22,9 @@ import (
 	"k8c.io/kubermatic/v2/pkg/resources"
 )
 
+// additionalImages are images that are not part of the KKP release or code-base itself but are required for setting up the KKP environment.
+var additionalImages []string = []string{}
+
 // getAdditionalImagesFromReconcilers returns the images used by the reconcilers for Enterprise Edition addons/components.
 // Since this is the Community Edition, this function is no-op and would always return nil,nil.
 func getAdditionalImagesFromReconcilers(_ *resources.TemplateData) ([]string, error) {

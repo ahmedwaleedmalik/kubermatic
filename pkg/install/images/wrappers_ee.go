@@ -28,6 +28,13 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
+// additionalImages are images that are not part of the KKP release or code-base itself but are required for setting up the KKP environment.
+var additionalImages []string = []string{
+	// Both Envoy and KubeLB are required to setup the KubeLB management cluster.
+	"envoyproxy/envoy:distroless-v1.31.0",
+	"quay.io/kubermatic/kubelb-manager-ee:" + kubelb.ImageTag,
+}
+
 // getAdditionalImagesFromReconcilers returns the images used by the reconcilers for Enterprise Edition addons/components.
 func getAdditionalImagesFromReconcilers(templateData *resources.TemplateData) (images []string, err error) {
 	deploymentReconcilers := []reconciling.NamedDeploymentReconcilerFactory{

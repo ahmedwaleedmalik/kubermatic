@@ -62,7 +62,7 @@ var (
 
 const (
 	imageName = "kubelb-ccm-ee"
-	imageTag  = "v1.1.2"
+	ImageTag  = "v1.1.2"
 )
 
 type kubeLBData interface {
@@ -131,7 +131,7 @@ func DeploymentReconcilerWithoutInitWrapper(data kubeLBData) reconciling.NamedDe
 			dep.Spec.Template.Spec.Containers = []corev1.Container{
 				{
 					Name:    resources.KubeLBDeploymentName,
-					Image:   repository + ":" + imageTag,
+					Image:   repository + ":" + ImageTag,
 					Command: []string{"/ccm"},
 					Args:    getFlags(data.Cluster().Name, data.DC().Spec.KubeLB, data.Cluster().Spec.KubeLB),
 					LivenessProbe: &corev1.Probe{

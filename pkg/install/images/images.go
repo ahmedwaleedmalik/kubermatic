@@ -279,6 +279,10 @@ func pathOpener(path string) tarball.Opener {
 	}
 }
 
+func GetAdditionalImages() []string {
+	return additionalImages
+}
+
 func LoadImages(ctx context.Context, log logrus.FieldLogger, archivePath string, dryRun bool, registry string, userAgent string) error {
 	indexManifest, err := tarball.LoadManifest(pathOpener(archivePath))
 	if err != nil {
@@ -385,13 +389,13 @@ func copyImage(ctx context.Context, log logrus.FieldLogger, image ImageSourceDes
 	})
 }
 
-func GetImagesForVersion(log logrus.FieldLogger, clusterVersion *version.Version, cloudSpec kubermaticv1.CloudSpec, cniPlugin *kubermaticv1.CNIPluginSettings, konnectivityEnabled bool, config *kubermaticv1.KubermaticConfiguration, addons map[string]*addon.Addon, kubermaticVersions kubermatic.Versions, caBundle resources.CABundle, registryPrefix string) (images []string, err error) {
+func GetImagesForVersion(log logrus.FieldLogger, clusterVersion *version.Version, cloudSpec kubermaticv1.CloudSpec, cniPlugin *kubermaticv1.CNIPluginSettings, config *kubermaticv1.KubermaticConfiguration, addons map[string]*addon.Addon, kubermaticVersions kubermatic.Versions, caBundle resources.CABundle, registryPrefix string) (images []string, err error) {
 	seed, err := defaulting.DefaultSeed(&kubermaticv1.Seed{}, config, zap.NewNop().Sugar())
 	if err != nil {
 		return nil, fmt.Errorf("failed to default Seed: %w", err)
 	}
 
-	templateData, err := getTemplateData(config, clusterVersion, cloudSpec, cniPlugin, konnectivityEnabled, kubermaticVersions, caBundle, seed)
+	templateData, err := getTemplateData(config, clusterVersion, cloudSpec, cniPlugin, kubermaticVersions, caBundle, seed)
 	if err != nil {
 		return nil, err
 	}
@@ -524,7 +528,7 @@ func getImagesFromPodSpec(spec corev1.PodSpec) (images []string) {
 	return images
 }
 
-func getTemplateData(config *kubermaticv1.KubermaticConfiguration, clusterVersion *version.Version, cloudSpec kubermaticv1.CloudSpec, cniPlugin *kubermaticv1.CNIPluginSettings, konnectivityEnabled bool, kubermaticVersions kubermatic.Versions, caBundle resources.CABundle, seed *kubermaticv1.Seed) (*resources.TemplateData, error) {
+func getTemplateData(config *kubermaticv1.KubermaticConfiguration, clusterVersion *version.Version, cloudSpec kubermaticv1.CloudSpec, cniPlugin *kubermaticv1.CNIPluginSettings, kubermaticVersions kubermatic.Versions, caBundle resources.CABundle, seed *kubermaticv1.Seed) (*resources.TemplateData, error) {
 	// We need listers and a set of objects to not have our deployment/statefulset creators fail
 	caBundleConfigMap := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -695,7 +699,6 @@ func getTemplateData(config *kubermaticv1.KubermaticConfiguration, clusterVersio
 	fakeCluster.Spec.ClusterNetwork.Pods.CIDRBlocks = []string{"172.25.0.0/16"}
 	fakeCluster.Spec.ClusterNetwork.Services.CIDRBlocks = []string{"10.10.10.0/24"}
 	fakeCluster.Spec.ClusterNetwork.DNSDomain = "cluster.local"
-	fakeCluster.Spec.ClusterNetwork.KonnectivityEnabled = ptr.To(konnectivityEnabled) //nolint:staticcheck
 	fakeCluster.Spec.CNIPlugin = cniPlugin
 	fakeCluster.Spec.Features = map[string]bool{kubermaticv1.ClusterFeatureEtcdLauncher: true}
 	if enabled, exists := config.Spec.FeatureGates[kubermaticv1.ClusterFeatureEtcdLauncher]; exists && !enabled {
@@ -750,7 +753,7 @@ func getTemplateData(config *kubermaticv1.KubermaticConfiguration, clusterVersio
 		WithFailureDomainZoneAntiaffinity(false).
 		WithVersions(kubermaticVersions).
 		WithCABundle(caBundle).
-		WithKonnectivityEnabled(konnectivityEnabled).
+		WithKonnectivityEnabled(true).
 		Build(), nil
 }
 

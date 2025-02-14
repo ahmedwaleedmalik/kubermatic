@@ -246,7 +246,6 @@ func MirrorImagesFunc(logger *logrus.Logger, versions kubermaticversion.Versions
 							clusterVersion,
 							cloudSpec,
 							cniPlugin,
-							false,
 							kubermaticConfig,
 							allAddons,
 							versions,
@@ -257,26 +256,12 @@ func MirrorImagesFunc(logger *logrus.Logger, versions kubermaticversion.Versions
 							return fmt.Errorf("failed to get images: %w", err)
 						}
 						imageSet.Insert(imagesWithoutKonnectivity...)
-
-						imagesWithKonnectivity, err := images.GetImagesForVersion(
-							versionLogger,
-							clusterVersion,
-							cloudSpec,
-							cniPlugin,
-							true,
-							kubermaticConfig,
-							allAddons,
-							versions,
-							caBundle,
-							options.RegistryPrefix,
-						)
-						if err != nil {
-							return fmt.Errorf("failed to get images: %w", err)
-						}
-						imageSet.Insert(imagesWithKonnectivity...)
 					}
 				}
 			}
+
+			// Add additional images that are not part of the KKP release or code-base itself but are required for setting up the KKP environment.
+			imageSet.Insert(images.GetAdditionalImages()...)
 
 			// error out early if there is no useful Helm binary
 			helmClient, err := helm.NewCLI(options.HelmBinary, "", "", options.HelmTimeout, logger)
